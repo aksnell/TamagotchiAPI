@@ -59,13 +59,11 @@ namespace TamagotchiAPI.Controllers
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(null, null, newTamagotchi);
-
         }
 
         [HttpPost("{id}/playtimes")]
         public async Task<ActionResult<Tamagotchi>> PlayAsync(int id)
         {
- 
             var tama = await FindTamaAsync(id);
 
             if (tama == null)
@@ -79,7 +77,6 @@ namespace TamagotchiAPI.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(tama);
-
         }
 
         private async Task<Tamagotchi> FindTamaAsync(int id)
