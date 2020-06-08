@@ -7,6 +7,8 @@ namespace TamagotchiAPI.Models
 {
     public partial class DatabaseContext : DbContext
     {
+        public DbSet<Tamagotchi> Tamagotchis { get; set; }
+
         // Change this if you want to have a different database name in development
         private static string DEVELOPMENT_DATABASE_NAME = "TamagotchiAPIDatabase";
 
