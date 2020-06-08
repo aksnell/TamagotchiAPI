@@ -1,6 +1,8 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TamagotchiAPI.Models;
@@ -20,9 +22,15 @@ namespace TamagotchiAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Tamagotchi>>> GetAllAsync()
+        public async Task<ActionResult<IEnumerable<Tamagotchi>>> GetAllAsync(bool? livingOnly = null)
         {
-            var allTamagotchis = await _context.Tamagotchis.ToListAsync();
+            List<Tamagotchi> allTamagotchis;
+            if (livingOnly == true)
+            {
+                allTamagotchis = _context.Tamagotchis.AsEnumerable().Where(tama => tama.IsDead == false).ToList();
+            } else {
+                allTamagotchis = await _context.Tamagotchis.ToListAsync();
+            }
 
             return Ok(allTamagotchis);
         }
@@ -41,9 +49,9 @@ namespace TamagotchiAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Tamagotchi>> CreateAsync(string tamaToCreate)
+        public async Task<ActionResult<Tamagotchi>> CreateAsync([FromBody]NewTamagotchi tamaToCreate)
         {
-            if (tamaToCreate == "")
+            if (tamaToCreate.Name == "")
             {
                 var errorMessage = new
                 {
@@ -53,7 +61,7 @@ namespace TamagotchiAPI.Controllers
                 return UnprocessableEntity(errorMessage);
             }
 
-            var newTamagotchi = new Tamagotchi(tamaToCreate);
+            var newTamagotchi = new Tamagotchi(tamaToCreate.Name);
 
             _context.Tamagotchis.Add(newTamagotchi);
             await _context.SaveChangesAsync();
@@ -71,10 +79,12 @@ namespace TamagotchiAPI.Controllers
                 return NotFound();
             }
 
-            tama.PlayTimes();
-
-            _context.Entry(tama).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            if (!tama.IsDead)
+            {
+                tama.HappinessLevel += 5;
+                tama.HungerLevel += 3;
+                await UpdateTamaAsync(tama);
+            }
 
             return Ok(tama);
         }
@@ -89,10 +99,12 @@ namespace TamagotchiAPI.Controllers
                 return NotFound();
             }
 
-            tama.Feedings();
-
-            _context.Entry(tama).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            if (!tama.IsDead)
+            {
+                tama.HungerLevel -= 5;
+                tama.HappinessLevel -= 3;
+                await UpdateTamaAsync(tama);
+            }
 
             return Ok(tama);
         }
@@ -107,10 +119,11 @@ namespace TamagotchiAPI.Controllers
                 return NotFound();
             }
 
-            tama.Scoldings();
-
-            _context.Entry(tama).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            if (!tama.IsDead)
+            {
+                tama.HappinessLevel -= 5;
+                await UpdateTamaAsync(tama);
+            }
 
             return Ok(tama);
         }
@@ -131,12 +144,26 @@ namespace TamagotchiAPI.Controllers
             return Ok(tama);
         }
 
+        private async Task UpdateTamaAsync(Tamagotchi tama)
+        {
+            tama.LastInteractedWith = DateTime.Now;
+
+            _context.Entry(tama).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+        }
+
         private async Task<Tamagotchi> FindTamaAsync(int id)
         {
             var foundTama = await _context.Tamagotchis.FirstOrDefaultAsync(tama => tama.Id == id);
 
             return foundTama;
 
+        }
+
+        public class NewTamagotchi
+        {
+            [JsonPropertyName("name")]
+            public string Name { get; set; }
         }
     }
 }
