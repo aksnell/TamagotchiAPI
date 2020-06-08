@@ -27,10 +27,17 @@ namespace TamagotchiAPI.Controllers
             return Ok(allTamagotchis);
         }
 
-        [HttpGet{"{id}"]
+        [HttpGet("{id}")]
         public async Task<ActionResult<Tamagotchi>> GetByIDAsync(int id)
         {
-            var tama = await Find
+            var tama = await FindTamaAsync(id);
+
+            if (tama == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(tama);
         }
 
         [HttpPost]
