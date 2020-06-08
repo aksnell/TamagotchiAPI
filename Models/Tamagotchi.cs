@@ -7,7 +7,7 @@ public class Tamagotchi
     public DateTime Birthday  { get; set; }
     public int HungerLevel    { get; set; }
     public int HappinessLevel { get; set; }
-    
+
     public Tamagotchi(string name)
     {
         Name = name;
@@ -16,4 +16,9 @@ public class Tamagotchi
         HappinessLevel = 0;
     }
 
+    public void PlayTimes()
+    {
+        HappinessLevel += 5;
+        HungerLevel += 3;
+    }
 }
