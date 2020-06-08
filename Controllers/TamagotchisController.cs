@@ -62,6 +62,26 @@ namespace TamagotchiAPI.Controllers
 
         }
 
+        [HttpPost("{id}/playtimes")]
+        public async Task<ActionResult<Tamagotchi>> PlayAsync(int id)
+        {
+ 
+            var tama = await FindTamaAsync(id);
+
+            if (tama == null)
+            {
+                return NotFound();
+            }
+
+            tama.PlayTimes();
+
+            _context.Entry(tama).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return Ok(tama);
+
+        }
+
         private async Task<Tamagotchi> FindTamaAsync(int id)
         {
             var foundTama = await _context.Tamagotchis.FirstOrDefaultAsync(tama => tama.Id == id);
