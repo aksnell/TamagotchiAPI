@@ -20,11 +20,33 @@ namespace TamagotchiAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Tamagotchi>>> GetAllSync()
+        public async Task<ActionResult<IEnumerable<Tamagotchi>>> GetAllAsync()
         {
             var allTamagotchis = await _context.Tamagotchis.ToListAsync();
 
             return Ok(allTamagotchis);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<Tamagotchi>> CreateAsync(string tamaToCreate)
+        {
+            if (tamaToCreate == "")
+            {
+                var errorMessage = new
+                {
+                    message = "A Tamagotchi must have a name!"
+                };
+
+                return UnprocessableEntity(errorMessage);
+            }
+
+            var newTamagotchi = new Tamagotchi(tamaToCreate);
+
+            _context.Tamagotchis.Add(newTamagotchi);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(null, null, newTamagotchi);
+
         }
 
     }
