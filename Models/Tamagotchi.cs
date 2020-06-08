@@ -7,4 +7,13 @@ public class Tamagotchi
     public DateTime Birthday  { get; set; }
     public int HungerLevel    { get; set; }
     public int HappinessLevel { get; set; }
+    
+    public Tamagotchi(string name)
+    {
+        Name = name;
+        Birthday = DateTime.Now;
+        HungerLevel = 0;
+        HappinessLevel = 0;
+    }
+
 }
