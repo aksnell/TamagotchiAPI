@@ -21,4 +21,10 @@ public class Tamagotchi
         HappinessLevel += 5;
         HungerLevel += 3;
     }
+
+    public void Feedings()
+    {
+        HungerLevel -= 5;
+        HappinessLevel -= 3;
+    }
 }
