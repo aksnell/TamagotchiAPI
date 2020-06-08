@@ -49,5 +49,12 @@ namespace TamagotchiAPI.Controllers
 
         }
 
+        private async Task<Tamagotchi> FindTamaAsync(int id)
+        {
+            var foundTama = await _context.Tamagotchis.FirstOrDefaultAsync(tama => tama.Id == id);
+
+            return foundTama;
+
+        }
     }
 }
